@@ -54,10 +54,9 @@ mylocalancestry=1-(localancestry[myhaps,]>0.8) ## Thresholded; 0 for wildcat, 1 
 gtdata=apply(wildcat_data@gt[,-1],1,function(x)as.numeric(unlist(strsplit(x,"|",fixed=T))))
 mygtdata=gtdata[myhaps,]
 
-system("mkdir -p chr16data")
-write.csv(mygtdata,file="chr16data/gtdata.csv")
-write.csv(mylocalancestry,file="chr16data/localancestry.csv")
-write.csv(samples[mysamples,],file="chr16data/samples.csv")
+system("mkdir -p ../chr16data")
+write.csv(mygtdata,file="../chr16data/gtdata.csv")
+write.csv(mylocalancestry,file="../chr16data/localancestry.csv")
+write.csv(samples[mysamples,],file="../chr16data/samples.csv")
 
-image(mydata)
 
