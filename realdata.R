@@ -4,10 +4,10 @@ source("localancestryfns.R")
 ## This script requires that the following files have been created by convertmosaic/convert_mosaic.R
 
 
-samples=read.csv("convertmosaic/chr16data/samples.csv",row.names=1)
-localancestry=as.matrix(read.csv("convertmosaic/chr16data/localancestry.csv",row.names=1))
-gtdata=as.matrix(read.csv("convertmosaic/chr16data/gtdata.csv",row.names=1))
-rates=as.matrix(read.table("convertmosaic/chr16data/rates.16",skip=1))
+samples=read.csv("chr16data/samples.csv",row.names=1)
+localancestry=as.matrix(read.csv("chr16data/localancestry.csv",row.names=1))
+gtdata=as.matrix(read.csv("chr16data/gtdata.csv",row.names=1))
+rates=as.matrix(read.table("chr16data/rates.16",skip=1))
 
 ## We are going to have to simulate a rapid growth of the population to get enough individuals for a breeding program.
 ## The following procedure:
@@ -36,7 +36,7 @@ L=dim(data[[1]])[2] # Number of SNPs
 
 ## Perform forward simulation
 Gforward=100
-verbose=FALSE
+verbose=TRUE
 dataNull<-breedingSel(data,Gforward,selfn=selIdentity,d=gdists,verbose=verbose)
 dataRandom<-breedingSel(data,Gforward,selfn=selRandom,d=gdists,verbose=verbose)
 dataQ<-breedingSel(data,Gforward,selfn=selMinQ,d=gdists,verbose=verbose)

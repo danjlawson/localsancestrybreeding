@@ -94,7 +94,6 @@ breedingSel<-function(data,G,scorefn=scoreMeanQ,selfn=selIdentity,d=rep(0.01,dim
     N=dim(data[[1]])[1]/2
     for(g in 1:G){
         if(verbose) print(tail(score,1))
-        infrac=infracseq[g]
         wt=selfn(lastdata,...)
         parents=data.frame(
             p1=sample(1:N,N,TRUE,prob=wt),
