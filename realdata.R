@@ -5,7 +5,7 @@ source("localancestryfns.R")
 
 
 samples=read.csv("chr16data/samples.csv",row.names=1)
-localancestry=as.matrix(read.csv("chr16data/localancestry.csv",row.names=1))
+localancestry=1-as.matrix(read.csv("chr16data/localancestry.csv",row.names=1)) # reported as domestic proportions
 gtdata=as.matrix(read.csv("chr16data/gtdata.csv",row.names=1))
 rates=as.matrix(read.table("chr16data/rates.16",skip=1))
 
@@ -17,50 +17,115 @@ rates=as.matrix(read.table("chr16data/rates.16",skip=1))
 
 set.seed(2) # Due to the upsampling step, some seeds make a bad starting population
 ## Make a larger population
-Ntarget=200 # Number of target haplotypes
+Nhaptarget=200 # Number of target haplotypes
 Ltarget=5000 # Number of target SNPs
 ## We could breed based on allele sharing via ibs, but no need for this demo
 ## ibs=(gtdata %*% t(gtdata))/dim(gtdata)[2] 
 myhaps=sample(c(1:dim(localancestry)[1],
                 sample(1:dim(localancestry)[1],
-                       Ntarget-dim(localancestry)[1],
+                       Nhaptarget-dim(localancestry)[1],
                        replace=TRUE)))
 
 ## Construct the data we will use: 
 gpos=sort(sample(1:dim(localancestry)[2],Ltarget)) # The random SNPs included in the analysis
-data=list(panel=localancestry[myhaps,gpos],genomes=gtdata[myhaps,gpos]) # The upsamples panel of data
+wildcatdata=list(panel=localancestry[myhaps,gpos],
+                 genomes=gtdata[myhaps,gpos],
+                 founder=matrix(myhaps,nrow=Nhaptarget,ncol=Ltarget)) # The upsamples panel of data
 gdists=c(0,diff(as.numeric(rates[2,gpos]))) # The genetic distances
 
-N=dim(data[[1]])[1]/2 # Individuals
-L=dim(data[[1]])[2] # Number of SNPs
+N=dim(wildcatdata[[1]])[1]/2 # Individuals
+L=dim(wildcatdata[[1]])[2] # Number of SNPs
 
 ## Perform forward simulation
-Gforward=100
+Gforward=50
 verbose=TRUE
-dataNull<-breedingSel(data,Gforward,selfn=selIdentity,d=gdists,verbose=verbose)
-dataRandom<-breedingSel(data,Gforward,selfn=selRandom,d=gdists,verbose=verbose)
-dataQ<-breedingSel(data,Gforward,selfn=selMinQ,d=gdists,verbose=verbose)
-dataHet<-breedingSel(data,Gforward,selfn=selHet,d=gdists,verbose=verbose)
-dataHetQ<-breedingSel(data,Gforward,selfn=selHetQ,d=gdists,verbose=verbose)
+ignore<-function(){
+    wildcatsimpleNull<-breedingSel(wildcatdata,Gforward,
+                                   selfn=selIdentity,d=gdists,verbose=verbose)
+    wildcatsimpleRandom<-breedingSel(wildcatdata,Gforward,
+                                     selfn=selRandom,d=gdists,verbose=verbose)
+    wildcatsimpleQ<-breedingSel(wildcatdata,Gforward,
+                                selfn=selMinQ,d=gdists,verbose=verbose)
+    wildcatsimpleHet<-breedingSel(wildcatdata,Gforward,
+                                  selfn=selHet,d=gdists,verbose=verbose)
+    wildcatsimpleHetQ<-breedingSel(wildcatdata,Gforward,
+                                   selfn=selHetQ,d=gdists,verbose=verbose)
+}
+
+wildcatNull<-breedingSel(wildcatdata,Gforward,selfn=pairwiseRandom,
+                         parentfn=rankedParents)
+wildcatPairwiseQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseQ,
+                              parentfn=rankedParents,min=FALSE)
+wildcatPairwiseMK<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinship,
+                               parentfn=rankedParents,min=TRUE)
+wildcatPairwiseMH<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosity,
+                               parentfn=rankedParents,min=FALSE)
+wildcatPairwiseMHQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQ,
+                                parentfn=rankedParents,min=FALSE)
+wildcatPairwiseMHQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQScore,
+                                     parentfn=rankedParents,min=FALSE)
+wildcatPairwiseMKQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQ,
+                                parentfn=rankedParents,min=TRUE)
+wildcatPairwiseMKQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQScore,
+                                     parentfn=rankedParents,min=TRUE)
+
+save.image(paste0("SimulatedBreedingWildcat_L",L,".RData"))
 
 ## Choices of scores to report
-scores=c("Q","Het","HetQ")
+scores=c("NonQ","Het","HetQ")
 names=c("Domestic Admixture","Heterozygosity","Heterozygosity for wildcat loci")
 names(names)=scores
 ## Plot
 pdf(paste0("SimulatedBreedingWildcat_L",L,".pdf"),height=6,width=12)
 par(mfrow=c(1,3))
 for(score in scores){
-    yrange=c(0,0.35)
+    yrange=c(0,1)
     if(score=="Q") yrange=c(0,0.5)
     if(score=="EffectiveLoci") yrange=c(0,1)
-    plot(range(dataNull$score$g),yrange,xlab="Generation",ylab=score,type="n",main=paste("Evolution of",names[score]))
-##    lines(dataNull$score[,"g"],dataNull$score[,score],col="grey")
-    lines(dataRandom$score[,"g"],dataNull$score[,score],col=1,lty=1)
-    lines(dataQ$score[,"g"],dataQ$score[,score],col=2,lty=1)
-    lines(dataHet$score[,"g"],dataHet$score[,score],col=3,lty=1)
-    lines(dataHetQ$score[,"g"],dataHetQ$score[,score],col=4,lty=1)
+    plot(range(wildcatNull$score$g),yrange,xlab="Generation",ylab=score,type="n",main=paste("Evolution of",names[score]))
+##    lines(wildcatdataNull$score[,"g"],wildcatdataNull$score[,score],col="grey")
+    lines(wildcatNull$score[,"g"],wildcatNull$score[,score],col=1,lty=1)
+    lines(wildcatPairwiseQ$score[,"g"],wildcatPairwiseQ$score[,score],col=2,lty=1)
+    lines(wildcatPairwiseMH$score[,"g"],wildcatPairwiseMH$score[,score],col=3,lty=1)
+    lines(wildcatPairwiseMHQ$score[,"g"],wildcatPairwiseMHQ$score[,score],col=4,lty=1)
     legend("topleft",legend=c("Random","Widcat Genome Fraction","Heterozygosity","Wildcat Heterozygosity"),
            text.col=1:4,lty=1,col=c(1,2,3,4),title="Breeding top 50% by:")
 }
+dev.off()
+
+
+## Figure 3
+scores=c("NonQ","Het","Kin","HetQ","KinQ")
+names=c("Domestic Admixture","Heterozygosity","Kinship","Wildcat Heterozygosity","Wildcat Kinship")
+symbols=c("1-Q","H","K","SH","SK")
+names(symbols)=names(names)=scores
+pdf("Figure5-Wildcat.pdf",height=8,width=10)
+layout(matrix(c(1,2,3,6,4,5),nrow=2,byrow=TRUE))
+par(las=1)
+for(scoreon in 1:length(scores)){
+    score=scores[scoreon]
+    panel=letters[scoreon]
+    yrange=c(0,0.5)
+    if(score=="Kin") yrange=c(0,1)
+    if(score=="KinQ") yrange=c(0,1)
+    plot(range(wildcatNull$score$g),yrange,xlab="Generation",ylab=symbols[score],
+         type="n",main="",cex.axis=1.5,cex.lab=1.2)
+    mtext(paste0(panel,") Evolution of ",names[score]),adj=-0.2,line=1,cex=0.8)
+    lines(wildcatNull$score[,"g"],wildcatNull$score[,score],col=1,lty=3,lwd=2)
+    lines(wildcatPairwiseQ$score[,"g"],wildcatPairwiseQ$score[,score],col=2,lty=3,lwd=2)
+    lines(wildcatPairwiseMH$score[,"g"],wildcatPairwiseMH$score[,score],col=3,lty=3,lwd=2)
+    lines(wildcatPairwiseMK$score[,"g"],wildcatPairwiseMK$score[,score],col=5,lty=3,lwd=2)
+    lines(wildcatPairwiseMHQ$score[,"g"],wildcatPairwiseMHQ$score[,score],col=3,lty=1,lwd=2)
+    lines(wildcatPairwiseMKQ$score[,"g"],wildcatPairwiseMKQ$score[,score],col=5,lty=1,lwd=2)
+    lines(wildcatPairwiseMHQScore$score[,"g"],wildcatPairwiseMHQScore$score[,score],col=4,lwd=2)
+    lines(wildcatPairwiseMKQScore$score[,"g"],wildcatPairwiseMKQScore$score[,score],col=6,lwd=2)
+}
+par(mar=c(0,0,0,0))
+plot(c(0,1),c(0,1), type="n",xlab="",ylab="",axes=FALSE)
+legend("center",legend=c("Random","Min Introgression","Max Heterozygosity","Min Kinship",
+                          "Max Wildcat Heterozygosity SH",
+                                              "Min Wildcat Kinship SK",
+                                              "Max Weighted Heterozygosity WSH",
+                                              "Min Weighted Kinship WSK"),
+           text.col=c(1,2,3,5,3,5,4,6),lty=c(3,3,3,3,1,1,1,1),col=c(1,2,3,5,3,5,4,6),title="Breeding ranking:",cex=1.2,lwd=2)
 dev.off()

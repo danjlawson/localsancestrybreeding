@@ -1,7 +1,43 @@
-
 ## Simulation for breeding and introgression where:
 ## Genetic and local ancestry data are stored as a list(ancestry,genetic)
 
+simCaptive<-function(N,NI,L,gL=L/100,Fst=0.2,G=10,Galpha=2,alpha=0.3,seed=NA,usesex=TRUE){
+    ## Simulate a captive population
+    ## N= Individuals
+    ## NI = Introgressing individuals
+    ## L = Amount of genome, in SNPs. We assume separated by 1cM for a basic sim
+    ## This is a stand-alone script that should work regardless of data sources
+    ## Fst=0.2 # Fst between MRCA of two populations
+    ## G=10 # Number of gens after introgression starts
+    ## Galpha=2 # Number of gens of introgression
+    ## alpha=0.3 # Introgression alpha during Galpha period
+    ## usesex: whether to model sex
+    ## seed =NA random seed for replicability
+    if(!is.na(seed)) set.seed(seed)
+    f0=runif(L,0.05,0.95) # Frequencies in the MRCA
+    f=simf(f0,Fst) # Frequencies in the target population
+    fintrogress=simf(f0,Fst) # Frequencies in the introgressing population
+    gdist=diff(seq(0,gL,length.out=L+1))
+    infracseq=c(rep(alpha,Galpha),rep(0,G-Galpha)) # Introgression sequence
+
+    genomes=sapply(f,function(p)rbinom(2*N,1,p))
+    genomesIntrogress=sapply(fintrogress,function(p)rbinom(2*NI,1,p))
+    founder=matrix(rep(1:N,each=2),N*2,L)
+    data=list(panel=matrix(1,N*2,L),genomes=genomes,founder=founder)
+    attr(data,"sexf")=rbinom(N,1,0.5)
+    dataIntrogress=list(panel=matrix(0,NI*2,L),
+                        genomes=genomesIntrogress,
+                        founder=matrix(rep(1:NI,each=2),NI*2,L))
+    attr(dataIntrogress,"sexf")=rbinom(NI,1,0.5)
+    
+    ## Generate the initial panel
+    data0=breedingIntrogress(data,dataIntrogress,G,infracseq,d=gdist,usesex=usesex)
+    data0$founder=matrix(rep(1:N,each=2),N*2,L) ## Re-founder the panel
+    ## Generate the captive population
+    data<-breedingSel(data0,1,selfn=selRandom,frac=0.25,d=gdist,usesex=usesex)$data ## Random mating bottleneck
+    data<-breedingSel(data,1,selfn=selMaxQ,frac=0.25,d=gdist,usesex=usesex)$data ## Removal of highly introgressed individuals
+    data
+}
 
 crossover=function(data,d=rep(0.01,dim(data[[1]])[2])){
     ## Crosses over data for two individuals, stored as rows of ancestry: data[[1]] and genome: data[[2]]
@@ -77,6 +113,7 @@ sampleParentsIntrogress<-function(data,dataIntrogress,infrac,usesex=TRUE){
 breedingIntrogress<-function(data,dataIntrogress,G,infracseq=rep(0,G),d=rep(0.01,dim(data[[1]])[2]),usesex=TRUE){
     ## Breed at random, with a particular introgression profile, from a fixed panel of introgressing individuals
     lastdata=data
+    N=dim(data[[1]])[1]/2
     for(g in 1:G){
         infrac=infracseq[g]
         parents=sampleParentsIntrogress(data,dataIntrogress,infrac,usesex=usesex)

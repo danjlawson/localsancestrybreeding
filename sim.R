@@ -5,7 +5,6 @@ source("localancestryfns.R")
 set.seed(1)
 N=100 # Individuals
 NI=50 # Introgressing individuals
-p=2 # ploidy
 L=500 # Amount of genome, in SNPs. We assume cM for a basic sim
 Fst=0.2 # Fst between MRCA of two populations
 f0=runif(L,0.05,0.95) # Frequencies in the MRCA
