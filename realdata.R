@@ -1,8 +1,25 @@
 source("localancestryfns.R")
 ### Start of real data processing
 
+
 ## This script requires that the following files have been created by convertmosaic/convert_mosaic.R
 
+## From Appendix 1 of SW_PVA_2023_Reportv2 (002).docx:
+# Mean brood size **per year**:
+meanbrood=sum(c(1,2,3,4,5)*c(23,36,30,10,1)/100)
+## Mortality in y 1 = 0.3
+meanbrood*(1-0.3)
+## 1.61
+## Age at first offspring 1, max age 8
+## F mortality in adults = 0.1, so total number of offspring per F = 
+totalbrood=sum(meanbrood * (1-0.3) * ((1-0.1)^(0:6)))
+totalbrood
+## 8.4
+## 50% adult F breeding
+totalbrood*0.5
+## 4.2 children on average per female per generation
+##
+## Also 150 is the size of the population
 
 samples=read.csv("chr16data/samples.csv",row.names=1)
 localancestry=1-as.matrix(read.csv("chr16data/localancestry.csv",row.names=1)) # reported as domestic proportions
@@ -11,13 +28,13 @@ rates=as.matrix(read.table("chr16data/rates.16",skip=1))
 
 ## We are going to have to simulate a rapid growth of the population to get enough individuals for a breeding program.
 ## The following procedure:
-## a) goes from 24 to 100 individuals (by using all haplotypes and then randomly adding additional copies of them)
+## a) goes from 24 to 150 individuals (by using all haplotypes and then randomly adding additional copies of them)
 ## b) downsamples to a specified number of SNPs. As long as this is large enough to
 ##    capture LD, it won't affect the mean dynamics but massively changes runtime
 
 set.seed(2) # Due to the upsampling step, some seeds make a bad starting population
 ## Make a larger population
-Nhaptarget=200 # Number of target haplotypes
+Nhaptarget=300 # Number of target haplotypes
 Ltarget=5000 # Number of target SNPs
 ## We could breed based on allele sharing via ibs, but no need for this demo
 ## ibs=(gtdata %*% t(gtdata))/dim(gtdata)[2] 
@@ -52,22 +69,30 @@ ignore<-function(){
                                    selfn=selHetQ,d=gdists,verbose=verbose)
 }
 
+meanoff=4.2
 wildcatNull<-breedingSel(wildcatdata,Gforward,selfn=pairwiseRandom,
-                         parentfn=rankedParents)
+                         parentfn=rankedParents,offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseQ,
-                              parentfn=rankedParents,min=FALSE)
+                              parentfn=rankedParents,min=FALSE,
+                              offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseMK<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinship,
-                               parentfn=rankedParents,min=TRUE)
+                               parentfn=rankedParents,min=TRUE,
+                              offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseMH<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosity,
-                               parentfn=rankedParents,min=FALSE)
+                               parentfn=rankedParents,min=FALSE,
+                              offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseMHQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQ,
-                                parentfn=rankedParents,min=FALSE)
+                                parentfn=rankedParents,min=FALSE,
+                              offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseMHQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQScore,
-                                     parentfn=rankedParents,min=FALSE)
+                                     parentfn=rankedParents,min=FALSE,
+                              offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseMKQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQ,
-                                parentfn=rankedParents,min=TRUE)
+                                parentfn=rankedParents,min=TRUE,
+                              offspringdist=function(N)rpois(N,meanoff))
 wildcatPairwiseMKQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQScore,
-                                     parentfn=rankedParents,min=TRUE)
+                                     parentfn=rankedParents,min=TRUE,
+                              offspringdist=function(N)rpois(N,meanoff))
 
 save.image(paste0("SimulatedBreedingWildcat_L",L,".RData"))
 

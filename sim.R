@@ -3,7 +3,7 @@ source("localancestryfns.R")
 
 ## This is a stand-alone script that should work regardless of data sources
 set.seed(1)
-N=100 # Individuals
+N=150 # Individuals
 NI=50 # Introgressing individuals
 L=500 # Amount of genome, in SNPs. We assume cM for a basic sim
 Fst=0.2 # Fst between MRCA of two populations
@@ -77,6 +77,8 @@ dataPairwiseMKQScore<-breedingSel(data,Gforward,selfn=pairwiseKinshipQScore,pare
 scores=c("NonQ","Het","HetQ","K")
 names=c("Domestic Admixture","Heterozygosity","Heterozygosity for target loci","Kinship")
 names(names)=scores
+
+save.image("sim.RData")
 
 ## pdf("SimulatedBreeding.pdf",height=6,width=12)
 par(mfrow=c(2,2))

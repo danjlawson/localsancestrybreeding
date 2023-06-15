@@ -153,12 +153,12 @@ sampleParents<-function(data,selfn,usesex=FALSE,min=TRUE,...){
                            p2=sample(1:N,N,replace=TRUE,prob=score))
     }else{
         parents=data.frame(
-            p1=sample((1:N)[attr(data,"sexf")==1],N,TRUE,prob=wt[attr(data,"sexf")==1]),
-            p2=sample((1:N)[attr(data,"sexf")==0],N,TRUE,prob=wt[attr(data,"sexf")==0]))
+            p1=sample((1:N)[attr(data,"sexf")==1],N,TRUE,prob=score[attr(data,"sexf")==1]),
+            p2=sample((1:N)[attr(data,"sexf")==0],N,TRUE,prob=score[attr(data,"sexf")==0]))
     }
     return(parents)
 }
-rankedParents<-function(data,selfn=pairwiseRandom,min=TRUE,usesex=FALSE,offspringdist=function(N)rpois(N,3),...){
+rankedParents<-function(data,selfn=pairwiseRandom,min=TRUE,usesex=FALSE,offspringdist=function(N)rpois(N,4.2),...){
     ## Sample parents with a ranked weighting procedure
     ## https://academic.oup.com/jhered/article/103/2/186/886373?login=false#81041438
     ## This is Ranked MK Selection if we provide selfn=pairwiseKinship
