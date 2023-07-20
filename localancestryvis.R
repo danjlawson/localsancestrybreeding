@@ -113,3 +113,41 @@ pp[15:16,]
 
 image(1-t(dataPairwiseMK$data$panel))
 image(1-t(dataPairwiseMHQScore$data$panel))
+
+
+png("selecionpanels2.png",height=800,width=1600)
+layout(matrix(c(5,6,1,2,3,4),ncol=2))
+par(mar=c(1,6,6,6))
+pp=myimage2(visdata,inds=inds,snps=snps)
+ppQ=myimage2(visdataPairwiseQ$data,inds=inds,snps=snps)
+ppK=myimage2(visdataPairwiseMK$data,inds=inds,snps=snps)
+ppHQ=myimage2(visdataPairwiseMHQScore$data,inds=inds,snps=snps)
+dev.off()
+
+load("sim.RData")
+scores=c("NonQ","KinQ")
+names=c("Introgressed Admixture","Subpop Kinship")
+symbols=c("Domestic Cat proportion","Local Ancestry Kinship")
+names(symbols)=names(names)=scores
+
+png("simplifiedbreedingcurve.png",height=800,width=1600)
+mylwd=6
+par(mfrow=c(1,2),las=1,cex=3)
+for(scoreon in 1:length(scores)){
+    score=scores[scoreon]
+    panel=c("e","f")[scoreon]
+    yrange=c(0,0.5)
+    if(score=="KinQ") yrange=c(0,1)
+    plot(range(dataNull$score$g),yrange,xlab="Generation",ylab=symbols[score],
+         type="n",main="",cex.axis=1.5,cex.lab=1.2)
+#    mtext(paste0(panel,") Evolution of ",names[score]),adj=-0.2,line=1,cex=4)
+    lines(dataPairwiseRandom$score[,"g"],dataPairwiseRandom$score[,score],col="grey",
+          lwd=mylwd,cex=0.75,lty=3)
+    lines(dataPairwiseQ$score[,"g"],dataPairwiseQ$score[,score],col="grey",lwd=mylwd,lty=3)
+    lines(dataPairwiseMK$score[,"g"],dataPairwiseMK$score[,score],col="grey",lwd=mylwd,lty=3)
+    lines(dataPairwiseMKQ$score[,"g"],dataPairwiseMKQ$score[,score],col="red",lty=1,lwd=mylwd)
+    if(score=="NonQ") legend("topleft",legend=c("Traditional options","Local ancestry"),
+                             text.col=c("black","red"),lty=1,col=c("grey","red"),
+                             title="Breeding using:",cex=1,lwd=mylwd)
+}
+dev.off()

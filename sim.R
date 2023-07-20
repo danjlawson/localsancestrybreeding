@@ -74,12 +74,23 @@ dataPairwiseMHQScore<-breedingSel(data,Gforward,selfn=pairwiseHeterozygosityQSco
 dataPairwiseMKQ<-breedingSel(data,Gforward,selfn=pairwiseKinshipQ,parentfn=rankedParents,min=TRUE)
 dataPairwiseMKQScore<-breedingSel(data,Gforward,selfn=pairwiseKinshipQScore,parentfn=rankedParents,min=TRUE)
 
+
+dataPairwiseErrRandom<-breedingSel(data,Gforward,selfn=pairwiseRandom,parentfn=rankedParents,errprob=0.4)
+dataPairwiseErrQ<-breedingSel(data,Gforward,selfn=pairwiseQ,parentfn=rankedParents,min=FALSE,errprob=0.4)
+dataPairwiseErrMK<-breedingSel(data,Gforward,selfn=pairwiseKinship,parentfn=rankedParents,min=TRUE,errprob=0.4)
+dataPairwiseErrMH<-breedingSel(data,Gforward,selfn=pairwiseHeterozygosity,parentfn=rankedParents,min=FALSE,errprob=0.4)
+dataPairwiseErrMHQ<-breedingSel(data,Gforward,selfn=pairwiseHeterozygosityQ,parentfn=rankedParents,min=FALSE,errprob=0.4)
+dataPairwiseErrMHQScore<-breedingSel(data,Gforward,selfn=pairwiseHeterozygosityQScore,parentfn=rankedParents,min=FALSE,errprob=0.4)
+dataPairwiseErrMKQ<-breedingSel(data,Gforward,selfn=pairwiseKinshipQ,parentfn=rankedParents,min=TRUE,errprob=0.4)
+dataPairwiseErrMKQScore<-breedingSel(data,Gforward,selfn=pairwiseKinshipQScore,parentfn=rankedParents,min=TRUE,errprob=0.4)
+
 scores=c("NonQ","Het","HetQ","K")
 names=c("Domestic Admixture","Heterozygosity","Heterozygosity for target loci","Kinship")
 names(names)=scores
 
 save.image("sim.RData")
 
+load("sim.RData")
 ## pdf("SimulatedBreeding.pdf",height=6,width=12)
 par(mfrow=c(2,2))
 for(score in scores){
@@ -164,9 +175,9 @@ dataNull$score
 dataRandom$score
 dataQ$score
 dataHet$score
-dataHetQ$score
+#dataHetQ$score
 
-image(t(dataHetQ$data[[1]]))
+#image(t(dataHetQ$data[[1]]))
 
 ## A simulation based approach: not needed
 ## lastdata=data
@@ -187,16 +198,16 @@ image(t(dataHetQ$data[[1]]))
 ## Figure 2
 scores=c("NonQ","Het","K")
 names=c("Introgressed Admixture","Heterozygosity","Kinship")
-symbols=c("                  1-Q      (More Introgressed)",
-          "                   H       (More Diverse)",
-          "                   K       (More Inbred)")
+symbols=c(expression("                 "~1-S^"Q"~"        (More Introgressed)"),
+          expression("                 "~S^"H"~"          (More Diverse)"),
+          expression("                 "~S^"K"~"          (More Inbred)"))
 names(symbols)=names(names)=scores
 pdf("Figure2-SimpleModels.pdf",height=4,width=10)
-par(mfrow=c(1,3),las=1)
+par(mfrow=c(1,3),las=1,xpd=NA,mar=c(5,5,3,1),cex=0.8)
 for(scoreon in 1:length(scores)){
     score=scores[scoreon]
     panel=letters[scoreon]
-    yrange=c(0,0.5)
+    yrange=c(0,0.7)
     if(score=="K") yrange=c(0,1)
     plot(range(dataNull$score$g),yrange,xlab="Generation",ylab=symbols[score],
          type="n",main="",cex.axis=1.5,cex.lab=1.2)
@@ -204,20 +215,30 @@ for(scoreon in 1:length(scores)){
     lines(dataPairwiseRandom$score[,"g"],dataPairwiseRandom$score[,score],col=1,lwd=2,cex=0.75)
     lines(dataPairwiseQ$score[,"g"],dataPairwiseQ$score[,score],col=2,lwd=2)
     lines(dataPairwiseMH$score[,"g"],dataPairwiseMH$score[,score],col=3,lwd=2)
-    lines(dataPairwiseMK$score[,"g"],dataPairwiseMK$score[,score],col=5,lwd=2)
-    if(score=="Het") legend("topleft",legend=c("Random R","Min Introgression Q","Max Heterozygosity H","Min Kinship K"),
-           text.col=c(1,2,3,5),lty=1,col=c(1,2,3,5),title="Breeding ranking:",cex=1,lwd=2)
+    lines(dataPairwiseMK$score[,"g"],dataPairwiseMK$score[,score],col=4,lwd=2)
+    if(score=="Het") legend("topleft",legend=c("Random R",
+                                               "Min Introgression Q",
+                                               "Max Heterozygosity H",
+                                               "Min Kinship K"),
+           text.col=c(1,2,3,4),lty=1,col=c(1,2,3,4),title="Breeding ranking:",cex=1,lwd=2)
 }
 dev.off()
 
+####### With high error rates
 ## Figure 3
 scores=c("NonQ","Het","Kin","HetQ","KinQ")
-names=c("Introgressed Admixture","Heterozygosity","Kinship","Subpop Heterozygosity","Subpop Kinship")
-symbols=c("1-Q","H","K","SH","SK")
+names=c("Introgressed Admixture","Heterozygosity","Kinship",
+        "Pop. Heterozygosity","Pop. Kinship")
+symbols=c(expression("                 "~1-S^"Q"~"        (More Introgressed)"),
+          expression("                 "~S^"H"~"          (More Diverse)"),
+          expression("                 "~S^"K"~"          (More Inbred)"),
+          expression("                 "~S^"PH"~"      (Target More Diverse)"),
+          expression("                 "~S^"PK"~"      (Target More Inbred)")
+          )
 names(symbols)=names(names)=scores
 pdf("Figure3-FullModels.pdf",height=8,width=10)
 layout(matrix(c(1,2,3,6,4,5),nrow=2,byrow=TRUE))
-par(las=1)
+par(las=1,mar=c(5,5,3,1),cex=0.8)
 for(scoreon in 1:length(scores)){
     score=scores[scoreon]
     panel=letters[scoreon]
@@ -226,22 +247,79 @@ for(scoreon in 1:length(scores)){
     if(score=="KinQ") yrange=c(0,1)
     plot(range(dataNull$score$g),yrange,xlab="Generation",ylab=symbols[score],
          type="n",main="",cex.axis=1.5,cex.lab=1.2)
-    mtext(paste0(panel,") Evolution of ",names[score]),adj=-0.2,line=1,cex=0.8)
+    mtext(paste0(panel,") Evolution of ",names[score]),adj=0.5,line=1,cex=1)
     lines(dataPairwiseRandom$score[,"g"],dataPairwiseRandom$score[,score],col=1,lty=3,lwd=2)
     lines(dataPairwiseQ$score[,"g"],dataPairwiseQ$score[,score],col=2,lty=3,lwd=2)
     lines(dataPairwiseMH$score[,"g"],dataPairwiseMH$score[,score],col=3,lty=3,lwd=2)
-    lines(dataPairwiseMK$score[,"g"],dataPairwiseMK$score[,score],col=5,lty=3,lwd=2)
+    lines(dataPairwiseMK$score[,"g"],dataPairwiseMK$score[,score],col=4,lty=3,lwd=2)
     lines(dataPairwiseMHQ$score[,"g"],dataPairwiseMHQ$score[,score],col=3,lty=1,lwd=2)
-    lines(dataPairwiseMKQ$score[,"g"],dataPairwiseMKQ$score[,score],col=5,lty=1,lwd=2)
-    lines(dataPairwiseMHQScore$score[,"g"],dataPairwiseMHQScore$score[,score],col=4,lwd=2)
-    lines(dataPairwiseMKQScore$score[,"g"],dataPairwiseMKQScore$score[,score],col=6,lwd=2)
+    lines(dataPairwiseMKQ$score[,"g"],dataPairwiseMKQ$score[,score],col=4,lty=1,lwd=2)
+    lines(dataPairwiseMHQScore$score[,"g"],dataPairwiseMHQScore$score[,score],col=6,lwd=2)
+    lines(dataPairwiseMKQScore$score[,"g"],dataPairwiseMKQScore$score[,score],col=5,lwd=2)
+    lines(dataPairwiseErrMHQ$score[,"g"],dataPairwiseErrMHQ$score[,score],col=3,lty=2,lwd=2)
+    lines(dataPairwiseErrMKQ$score[,"g"],dataPairwiseErrMKQ$score[,score],col=4,lty=2,lwd=2)
+    lines(dataPairwiseErrMHQScore$score[,"g"],dataPairwiseErrMHQScore$score[,score],col=6,lty=2,lwd=2)
+    lines(dataPairwiseErrMKQScore$score[,"g"],dataPairwiseErrMKQScore$score[,score],col=4,lty=2,lwd=2)
 }
 par(mar=c(0,0,0,0))
 plot(c(0,1),c(0,1), type="n",xlab="",ylab="",axes=FALSE)
-legend("center",legend=c("Random","Min Introgression","Max Heterozygosity","Min Kinship",
-                          "Max Subpop Heterozygosity SH",
-                                              "Min Subpop Kinship SK",
-                                              "Max Weighted Heterozygosity WSH",
-                                              "Min Weighted Kinship WSK"),
-           text.col=c(1,2,3,5,3,5,4,6),lty=c(3,3,3,3,1,1,1,1),col=c(1,2,3,5,3,5,4,6),title="Breeding ranking:",cex=1.2,lwd=2)
+legend("center",legend=c("Random",
+                         "Min Introgression Q",
+                         "Max Heterozygosity H",
+                         "Min Kinship K",
+                         "Max Pop. Het. PH",
+                         "Min Pop. Kinship PK",
+                         "Min PK (60% compliance)",
+                         "Max Weighted Pop. Het. WPH",
+                         "Max WPH (60% compliance)",
+                         "Min Weighted Pop. Kin. WPK"),
+       text.col=c(1,2,3,4,3,4,4,6,6,5),
+       lty     =c(3,3,3,3,1,1,2,1,2,1),
+       col     =c(1,2,3,4,3,4,4,6,6,5),
+       title="Breeding ranking:",cex=1.2,lwd=2)
+dev.off()
+
+############ 
+scores=c("NonQ","Het","Kin","HetQ","KinQ")
+names=c("Introgressed Admixture","Heterozygosity","Kinship","Pop. Heterozygosity","Pop. Kinship")
+symbols=c(expression("                 "~S^"1-Q"~"        (More Introgressed)"),
+          expression("                 "~S^"H"~"          (More Diverse)"),
+          expression("                 "~S^"K"~"          (More Inbred)"),
+          expression("                 "~S^"PH"~"      (Target More Diverse)"),
+          expression("                 "~S^"PK"~"      (Target More Inbred)")
+          )
+names(symbols)=names(names)=scores
+pdf("FigureS2-Figure3forSimpleModel.pdf",height=8,width=10)
+layout(matrix(c(1,2,3,6,4,5),nrow=2,byrow=TRUE))
+par(las=1,mar=c(5,5,3,1),cex=0.8)
+for(scoreon in 1:length(scores)){
+    score=scores[scoreon]
+    panel=letters[scoreon]
+    yrange=c(0,0.5)
+    if(score=="Kin") yrange=c(0,1)
+    if(score=="KinQ") yrange=c(0,1)
+    plot(range(dataNull$score$g),yrange,xlab="Generation",ylab=symbols[score],
+         type="n",main="",cex.axis=1.5,cex.lab=1.2)
+    mtext(paste0(panel,") Evolution of ",names[score]),adj=0.5,line=1,cex=1)
+    lines(dataRandom$score[,"g"],dataRandom$score[,score],col=1,lty=3,lwd=2)
+    lines(dataQ$score[,"g"],dataQ$score[,score],col=2,lty=3,lwd=2)
+    lines(dataHet$score[,"g"],dataHet$score[,score],col=3,lty=3,lwd=2)
+    lines(dataKin$score[,"g"],dataKin$score[,score],col=4,lty=3,lwd=2)
+    lines(dataHetQ$score[,"g"],dataHetQ$score[,score],col=3,lty=1,lwd=2)
+    lines(dataKinQ$score[,"g"],dataKinQ$score[,score],col=4,lty=1,lwd=2)
+    lines(dataHetQwt$score[,"g"],dataHetQwt$score[,score],col=6,lwd=2)
+#    lines(dataExpectedKin$score[,"g"],dataExpectedKin$score[,score],col=5,lwd=2)
+}
+par(mar=c(0,0,0,0))
+plot(c(0,1),c(0,1), type="n",xlab="",ylab="",axes=FALSE)
+legend("center",legend=c(expression("Random"),
+                         expression("Min Introgression"~S^Q),
+                         expression("Max Heterozygosity"~S^H),
+                         expression("Min Kinship"~S^K),
+                         expression("Min Pop. Kinship"~S^"PK"),
+                         expression("Max Weighted Pop. Het."~S^"WPH")),
+       text.col=c(1,2,3,4,4,6),
+       lty     =c(3,3,3,3,1,1),
+       col     =c(1,2,3,4,4,6),
+       title="Breeding top 50% using:",cex=1.2,lwd=2)
 dev.off()

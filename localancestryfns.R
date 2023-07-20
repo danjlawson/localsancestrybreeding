@@ -158,7 +158,8 @@ sampleParents<-function(data,selfn,usesex=FALSE,min=TRUE,...){
     }
     return(parents)
 }
-rankedParents<-function(data,selfn=pairwiseRandom,min=TRUE,usesex=FALSE,offspringdist=function(N)rpois(N,4.2),...){
+
+rankedParents<-function(data,selfn=pairwiseRandom,min=TRUE,usesex=FALSE,errprob=0,offspringdist=function(N)rpois(N,4.2),...){
     ## Sample parents with a ranked weighting procedure
     ## https://academic.oup.com/jhered/article/103/2/186/886373?login=false#81041438
     ## This is Ranked MK Selection if we provide selfn=pairwiseKinship
@@ -171,7 +172,11 @@ rankedParents<-function(data,selfn=pairwiseRandom,min=TRUE,usesex=FALSE,offsprin
         score=rowMeans(scoremat)
         parentlist<-numeric()
         for(i in 1:N){ ## Remove the worst candidate one by one, computing the mean of the scorematrix for the remaining
-            scoreorder=order(score,decreasing=min)
+            if(runif(1)<errprob){ ## not following recommendations!
+                scoreorder=sample(1:length(score))
+            }else{ ## Follow the recommendations as planned
+                scoreorder=order(score,decreasing=min)
+            }
             who=presentlist[scoreorder[1]]
             parentlist<-c(parentlist,who)
             scoremat=scoremat[-scoreorder[1],-scoreorder[1],drop=FALSE]
@@ -467,12 +472,14 @@ pairwiseKinship<-function(x){
     ## Expected value of the Pairwise kinship probability
     ## where x is the data list and the result is an N by N matrix
     ## 
-    X=x[[3]]
-    N<-dim(X)[1]/2
+    K=x[[3]]
+    N<-dim(K)[1]/2
     ret<-matrix(0,N,N)
     for(i in 1:(N)){
         for(j in (i):N){
-            ret[j,i]<-ret[i,j]<- mean((X[2*i-1,]==X[2*j-1,])+(X[2*i-1,]==X[2*j,]) + (X[2*i,]==X[2*j-1,])+ (X[2*i,]==X[2*j,]))/4
+            ret[j,i]<-ret[i,j]<- mean(
+            (K[2*i-1,]==K[2*j-1,])+(K[2*i-1,]==K[2*j,]) +
+            (K[2*i,]==K[2*j-1,])+ (K[2*i,]==K[2*j,])  )/4
         }
     }
     ret

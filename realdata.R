@@ -93,9 +93,34 @@ wildcatPairwiseMKQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQ,
 wildcatPairwiseMKQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQScore,
                                      parentfn=rankedParents,min=TRUE,
                               offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrMHQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQ,
+                                parentfn=rankedParents,min=FALSE,errprob=0.4,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrMHQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQScore,
+                                     parentfn=rankedParents,min=FALSE,errprob=0.4,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrMKQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQ,
+                                parentfn=rankedParents,min=TRUE,errprob=0.4,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrMKQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQScore,
+                                     parentfn=rankedParents,min=TRUE,errprob=0.4,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrLowMHQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQ,
+                                parentfn=rankedParents,min=FALSE,errprob=0.2,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrLowMHQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseHeterozygosityQScore,
+                                     parentfn=rankedParents,min=FALSE,errprob=0.2,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrLowMKQ<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQ,
+                                parentfn=rankedParents,min=TRUE,errprob=0.2,
+                              offspringdist=function(N)rpois(N,meanoff))
+wildcatPairwiseErrLowMKQScore<-breedingSel(wildcatdata,Gforward,selfn=pairwiseKinshipQScore,
+                                     parentfn=rankedParents,min=TRUE,errprob=0.2,
+                              offspringdist=function(N)rpois(N,meanoff))
 
-save.image(paste0("SimulatedBreedingWildcat_L",L,".RData"))
+save.image(paste0("SimulatedBreedingWildcat_L",Ltarget,".RData"))
 
+load(paste0("SimulatedBreedingWildcat_L",Ltarget,".RData"))
 ## Choices of scores to report
 scores=c("NonQ","Het","HetQ")
 names=c("Domestic Admixture","Heterozygosity","Heterozygosity for wildcat loci")
@@ -119,14 +144,19 @@ for(score in scores){
 dev.off()
 
 
-## Figure 3
+## Figure 5
 scores=c("NonQ","Het","Kin","HetQ","KinQ")
 names=c("Domestic Admixture","Heterozygosity","Kinship","Wildcat Heterozygosity","Wildcat Kinship")
-symbols=c("1-Q","H","K","SH","SK")
+symbols=c(expression("                 "~1-S^"Q"~"        (More Introgressed)"),
+          expression("                 "~S^"H"~"          (More Diverse)"),
+          expression("                 "~S^"K"~"          (More Inbred)"),
+          expression("                 "~S^"PH"~"      (Wildcat More Diverse)"),
+          expression("                 "~S^"PK"~"      (Wildcat More Inbred)")
+          )
 names(symbols)=names(names)=scores
 pdf("Figure5-Wildcat.pdf",height=8,width=10)
 layout(matrix(c(1,2,3,6,4,5),nrow=2,byrow=TRUE))
-par(las=1)
+par(las=1,mar=c(5,5,3,1),cex=0.8)
 for(scoreon in 1:length(scores)){
     score=scores[scoreon]
     panel=letters[scoreon]
@@ -135,22 +165,36 @@ for(scoreon in 1:length(scores)){
     if(score=="KinQ") yrange=c(0,1)
     plot(range(wildcatNull$score$g),yrange,xlab="Generation",ylab=symbols[score],
          type="n",main="",cex.axis=1.5,cex.lab=1.2)
-    mtext(paste0(panel,") Evolution of ",names[score]),adj=-0.2,line=1,cex=0.8)
+    mtext(paste0(panel,") Evolution of ",names[score]),adj=0.5,line=1,cex=1)
     lines(wildcatNull$score[,"g"],wildcatNull$score[,score],col=1,lty=3,lwd=2)
     lines(wildcatPairwiseQ$score[,"g"],wildcatPairwiseQ$score[,score],col=2,lty=3,lwd=2)
     lines(wildcatPairwiseMH$score[,"g"],wildcatPairwiseMH$score[,score],col=3,lty=3,lwd=2)
-    lines(wildcatPairwiseMK$score[,"g"],wildcatPairwiseMK$score[,score],col=5,lty=3,lwd=2)
+    lines(wildcatPairwiseMK$score[,"g"],wildcatPairwiseMK$score[,score],col=4,lty=3,lwd=2)
     lines(wildcatPairwiseMHQ$score[,"g"],wildcatPairwiseMHQ$score[,score],col=3,lty=1,lwd=2)
-    lines(wildcatPairwiseMKQ$score[,"g"],wildcatPairwiseMKQ$score[,score],col=5,lty=1,lwd=2)
-    lines(wildcatPairwiseMHQScore$score[,"g"],wildcatPairwiseMHQScore$score[,score],col=4,lwd=2)
-    lines(wildcatPairwiseMKQScore$score[,"g"],wildcatPairwiseMKQScore$score[,score],col=6,lwd=2)
+    ##
+    lines(wildcatPairwiseMHQScore$score[,"g"],wildcatPairwiseMHQScore$score[,score],col=6,lwd=2)
+    lines(wildcatPairwiseErrLowMHQScore$score[,"g"],wildcatPairwiseErrLowMHQScore$score[,score],col=6,lty=2,lwd=2)
+    lines(wildcatPairwiseErrMHQScore$score[,"g"],wildcatPairwiseErrMHQScore$score[,score],col=6,lty=4,lwd=2)
+    ##
+    lines(wildcatPairwiseMKQ$score[,"g"],wildcatPairwiseMKQ$score[,score],col=4,lty=1,lwd=2)
+    lines(wildcatPairwiseErrLowMKQ$score[,"g"],wildcatPairwiseErrLowMKQ$score[,score],col=4,lty=2,lwd=2)
+    lines(wildcatPairwiseErrMKQ$score[,"g"],wildcatPairwiseErrMKQ$score[,score],col=4,lty=4,lwd=2)
 }
 par(mar=c(0,0,0,0))
 plot(c(0,1),c(0,1), type="n",xlab="",ylab="",axes=FALSE)
-legend("center",legend=c("Random","Min Introgression","Max Heterozygosity","Min Kinship",
-                          "Max Wildcat Heterozygosity SH",
-                                              "Min Wildcat Kinship SK",
-                                              "Max Weighted Heterozygosity WSH",
-                                              "Min Weighted Kinship WSK"),
-           text.col=c(1,2,3,5,3,5,4,6),lty=c(3,3,3,3,1,1,1,1),col=c(1,2,3,5,3,5,4,6),title="Breeding ranking:",cex=1.2,lwd=2)
+legend("center",legend=c("Random",
+                         "Min Introgression Q",
+                         "Max Heterozygosity H",
+                         "Min Kinship K",
+                         "Max Wildcat Pop. Het. PH",
+                         "Min Wildcat Pop. Kin. PK",
+                         "Min PK (60% compliance)",
+                         "Min PK (80% compliance)",
+                         "Max Wildcat Wt. Pop. Het. WPH",
+                         "Max WPH (60% compliance)",
+                         "Max WPH (80% compliance)"),
+       text.col=c(1,2,3,4,3,4,4,4,6,6,6),
+       lty=     c(3,3,3,3,1,1,4,2,1,4,2),
+       col=     c(1,2,3,4,3,4,4,4,6,6,6),
+       title="Breeding ranking:",cex=1.2,lwd=2)
 dev.off()

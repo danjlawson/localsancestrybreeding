@@ -158,14 +158,14 @@ lfunctionlist=lapply(lambdatest,function(x){
 Gforward=20
 lMHQScore=lapply(1:length(lambdatest),function(i){
     print(i)
-    dataPairwiseMHQScore<-breedingSel(gdatalist[[i]],Gforward,
+    dataPairwiseMHQScore<-breedingSel(ldatalist[[i]],Gforward,
                                       selfn=pairwiseHeterozygosityQScore,parentfn=rankedParents,
                                       offspringdist=lfunctionlist[[i]],min=FALSE)
     dataPairwiseMHQScore
 })
 lMKQ=lapply(1:length(lambdatest),function(i){
     print(i)
-    dataPairwiseMHQScore<-breedingSel(gdatalist[[i]],Gforward,
+    dataPairwiseMHQScore<-breedingSel(ldatalist[[i]],Gforward,
                                       selfn=pairwiseKinshipQ,parentfn=rankedParents,
                                       offspringdist=lfunctionlist[[i]],min=TRUE)
     dataPairwiseMHQScore
@@ -212,14 +212,14 @@ gendatalist<-lapply(1:length(gentest),function(i){
 
 ## Simulate breeding program
 Gforward=20
-genMHQScore=lapply(1:length(lambdatest),function(i){
+genMHQScore=lapply(1:length(gentest),function(i){
     print(i)
     dataPairwiseMHQScore<-breedingSel(gendatalist[[i]],Gforward,
                                       selfn=pairwiseHeterozygosityQScore,parentfn=rankedParents,
                                       min=FALSE)
     dataPairwiseMHQScore
 })
-genMKQ=lapply(1:length(lambdatest),function(i){
+genMKQ=lapply(1:length(gentest),function(i){
     print(i)
     dataPairwiseMHQScore<-breedingSel(gendatalist[[i]],Gforward,
                                       selfn=pairwiseKinshipQ,parentfn=rankedParents,
@@ -256,6 +256,7 @@ genKscoremaxs=aggregate.data.frame(genKscoreres,by=list(groupl=genKscoreres$gen)
 
 save.image("multisim.RData")
 
+load("multisim.RData")
 
 ############################################
 ## plot
@@ -267,7 +268,7 @@ myline<-function(x,ymean,ymin,ymax,col,...){
 
 ########################
 ## Figure 4
-pdf("Figure4-ChangingSim.pdf",height=4,width=10)
+pdf("Figure4-ChangingSim-version0.pdf",height=4,width=10)
 par(las=1)
 layout(matrix(c(1,2,3),nrow=1))
 plot(alphascoremeans$NonQ0,alphascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
@@ -299,8 +300,8 @@ mtext("c) Impact of Mean offspring",adj=-0.2,line=1,cex=0.8)
 ## par(mar=c(0,0,0,0))
 ## plot(c(0,1),c(0,1), type="n",xlab="",ylab="",axes=FALSE)
 legend("topright",legend=c("Introgression","Heterozygosity","Kinship",
-                          "Subpopulation Heterozygosity SH",
-                         "Subpopulation Kinship SK"),
+                          "Population Heterozygosity PH",
+                         "Population Kinship PK"),
        text.col=c(2,3,5,4,6),lty=1,col=c(2,3,5,4,6),title="Score:",title.col=1,cex=1,lwd=2,bg="white")
 ##
 dev.off()
@@ -308,7 +309,7 @@ dev.off()
 
 ########################
 ## Figure 4
-pdf("Figure4-ChangingSim.pdf",height=8,width=10)
+pdf("Figure4-ChangingSim-version0.1.pdf",height=8,width=10)
 par(las=1)
 layout(matrix(c(1:6),nrow=2,ncol=3,byrow=T))
 plot(alphascoremeans$NonQ0,alphascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
@@ -318,7 +319,7 @@ myline(alphascoremeans$NonQ0,alphascoremeans$Het,alphascoremins$Het,alphascorema
 myline(alphascoremeans$NonQ0,alphascoremeans$Kin,alphascoremins$Kin,alphascoremaxs$Kin,col="#00FFFF")
 myline(alphascoremeans$NonQ0,alphascoremeans$HetQ,alphascoremins$HetQ,alphascoremaxs$HetQ,col="#0000FF")
 myline(alphascoremeans$NonQ0,alphascoremeans$KinQ,alphascoremins$KinQ,alphascoremaxs$KinQ,col="#FF00FF")
-mtext("a) Introgression (Selecting SHQS)",adj=0,line=1,cex=0.8)
+mtext("a) Introgression (Selecting WPH)",adj=0,line=1,cex=0.8)
 ##
 plot(gLscoremeans$gL,gLscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Genome Length (Morgans)",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
 abline(v=5,lty=3)
@@ -327,7 +328,7 @@ myline(gLscoremeans$gL,gLscoremeans$Het,gLscoremins$Het,gLscoremaxs$Het,col="#00
 myline(gLscoremeans$gL,gLscoremeans$Kin,gLscoremins$Kin,gLscoremaxs$Kin,col="#00FFFF")
 myline(gLscoremeans$gL,gLscoremeans$HetQ,gLscoremins$HetQ,gLscoremaxs$HetQ,col="#0000FF")
 myline(gLscoremeans$gL,gLscoremeans$KinQ,gLscoremins$KinQ,gLscoremaxs$KinQ,col="#FF00FF")
-mtext("b) Genome Length (Selecting SHQS)",adj=-0.2,line=1,cex=0.8)
+mtext("b) Genome Length (Selecting WPH)",adj=-0.2,line=1,cex=0.8)
 plot(lambdascoremeans$lambda,lambdascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlim=c(2,6),xlab="Mean offspring per pair surviving to adulthood",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
 abline(v=3,lty=3)
 myline(lambdascoremeans$lambda,lambdascoremeans$NonQ,lambdascoremins$NonQ,lambdascoremaxs$NonQ,col="#FF0000")
@@ -335,10 +336,10 @@ myline(lambdascoremeans$lambda,lambdascoremeans$Het,lambdascoremins$Het,lambdasc
 myline(lambdascoremeans$lambda,lambdascoremeans$Kin,lambdascoremins$Kin,lambdascoremaxs$Kin,col="#00FFFF")
 myline(lambdascoremeans$lambda,lambdascoremeans$HetQ,lambdascoremins$HetQ,lambdascoremaxs$HetQ,col="#0000FF")
 myline(lambdascoremeans$lambda,lambdascoremeans$KinQ,lambdascoremins$KinQ,lambdascoremaxs$KinQ,col="#FF00FF")
-mtext("c) Mean offspring (Selecting SHQS)",adj=-0.2,line=1,cex=0.8)
+mtext("c) Mean offspring (Selecting WPH)",adj=-0.2,line=1,cex=0.8)
 legend("topright",legend=c("Introgression","Heterozygosity","Kinship",
-                          "Subpopulation Heterozygosity SH",
-                         "Subpopulation Kinship SK"),
+                          "Population Heterozygosity PH",
+                         "Population Kinship PK"),
        text.col=c(2,3,5,4,6),lty=1,col=c(2,3,5,4,6),title="Score:",title.col=1,cex=1,lwd=2,bg="white")
 ##
 plot(alphaKscoremeans$NonQ0,alphaKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
@@ -348,7 +349,7 @@ myline(alphaKscoremeans$NonQ0,alphaKscoremeans$Het,alphaKscoremins$Het,alphaKsco
 myline(alphaKscoremeans$NonQ0,alphaKscoremeans$Kin,alphaKscoremins$Kin,alphaKscoremaxs$Kin,col="#00FFFF")
 myline(alphaKscoremeans$NonQ0,alphaKscoremeans$HetQ,alphaKscoremins$HetQ,alphaKscoremaxs$HetQ,col="#0000FF")
 myline(alphaKscoremeans$NonQ0,alphaKscoremeans$KinQ,alphaKscoremins$KinQ,alphaKscoremaxs$KinQ,col="#FF00FF")
-mtext("d) Introgression (Selecting SKQ)",adj=-0.2,line=1,cex=0.8)
+mtext("d) Introgression (Selecting PK)",adj=-0.2,line=1,cex=0.8)
 ##
 plot(gLKscoremeans$gL,gLKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Genome Length (Morgans)",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
 abline(v=5,lty=3)
@@ -357,7 +358,7 @@ myline(gLKscoremeans$gL,gLKscoremeans$Het,gLKscoremins$Het,gLKscoremaxs$Het,col=
 myline(gLKscoremeans$gL,gLKscoremeans$Kin,gLKscoremins$Kin,gLKscoremaxs$Kin,col="#00FFFF")
 myline(gLKscoremeans$gL,gLKscoremeans$HetQ,gLKscoremins$HetQ,gLKscoremaxs$HetQ,col="#0000FF")
 myline(gLKscoremeans$gL,gLKscoremeans$KinQ,gLKscoremins$KinQ,gLKscoremaxs$KinQ,col="#FF00FF")
-mtext("e) Genome Length (Selecting SKQ)",adj=-0.2,line=1,cex=0.8)
+mtext("e) Genome Length (Selecting PK)",adj=-0.2,line=1,cex=0.8)
 plot(lambdaKscoremeans$lambda,lambdaKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlim=c(2,6),xlab="Mean offspring per pair surviving to adulthood",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
 abline(v=3,lty=3)
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$NonQ,lambdaKscoremins$NonQ,lambdaKscoremaxs$NonQ,col="#FF0000")
@@ -365,93 +366,102 @@ myline(lambdaKscoremeans$lambda,lambdaKscoremeans$Het,lambdaKscoremins$Het,lambd
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$Kin,lambdaKscoremins$Kin,lambdaKscoremaxs$Kin,col="#00FFFF")
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$HetQ,lambdaKscoremins$HetQ,lambdaKscoremaxs$HetQ,col="#0000FF")
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$KinQ,lambdaKscoremins$KinQ,lambdaKscoremaxs$KinQ,col="#FF00FF")
-mtext("f) Mean Offspring (Selecting SKQ)",adj=-0.2,line=1,cex=0.8)
+mtext("f) Mean Offspring (Selecting PK)",adj=-0.2,line=1,cex=0.8)
 ##
 ## par(mar=c(0,0,0,0))
 ## plot(c(0,1),c(0,1), type="n",xlab="",ylab="",axes=FALSE)
 legend("topright",legend=c("Introgression","Heterozygosity","Kinship",
-                          "Subpopulation Heterozygosity SH",
-                         "Subpopulation Kinship SK"),
-       text.col=c(2,3,5,4,6),lty=1,col=c(2,3,5,4,6),title="Score:",title.col=1,cex=1,lwd=2,bg="white")
+                          "Population Heterozygosity PH",
+                         "Population Kinship PK"),
+text.col=c(2,3,5,4,6),lty=1,col=c(2,3,5,4,6),title="Score:",title.col=1,cex=1,lwd=2,bg="white")
 ##
 dev.off()
- 
-##
-pdf("Figure4-ChangingSim.pdf",height=8,width=14)
-par(las=1)
+
+
+
+###############################
+cex.lab=1.5
+cex.axis=1.5
+cex.mtext=0.95
+pdf("Figure4-ChangingSim.pdf",height=7,width=12)
+par(las=1,cex=0.8,mar=c(5,5,3,1))
 layout(matrix(c(1:8),nrow=2,ncol=4,byrow=T))
-plot(alphascoremeans$NonQ0,alphascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
+plot(alphascoremeans$NonQ0,alphascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=cex.axis,cex.lab=cex.lab)
 abline(v=0.2,lty=3)
 myline(alphascoremeans$NonQ0,alphascoremeans$NonQ,alphascoremins$NonQ,alphascoremaxs$NonQ,col="#FF0000")
 myline(alphascoremeans$NonQ0,alphascoremeans$Het,alphascoremins$Het,alphascoremaxs$Het,col="#00FF00")
 myline(alphascoremeans$NonQ0,alphascoremeans$Kin,alphascoremins$Kin,alphascoremaxs$Kin,col="#00FFFF")
-myline(alphascoremeans$NonQ0,alphascoremeans$HetQ,alphascoremins$HetQ,alphascoremaxs$HetQ,col="#0000FF")
-myline(alphascoremeans$NonQ0,alphascoremeans$KinQ,alphascoremins$KinQ,alphascoremaxs$KinQ,col="#FF00FF")
-mtext("a) Introgression (Selecting SHQS)",adj=0,line=1,cex=0.8)
-##
-legend("topleft",legend=c("Introgression","Heterozygosity","Kinship",
-                          "Subpopulation Heterozygosity SH",
-                         "Subpopulation Kinship SK"),
-       text.col=c(2,3,5,4,6),lty=1,col=c(2,3,5,4,6),title="Score:",title.col=1,cex=1,lwd=2,bg="white")
-##
-plot(gLscoremeans$gL,gLscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Genome Length (Morgans)",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
+myline(alphascoremeans$NonQ0,alphascoremeans$KinQ,alphascoremins$KinQ,alphascoremaxs$KinQ,col="#0000FF")
+myline(alphascoremeans$NonQ0,alphascoremeans$HetQ,alphascoremins$HetQ,alphascoremaxs$HetQ,col="#FF00FF")
+mtext("a) Introgression (Selecting WPH)",adj=0.6,line=1,cex=cex.mtext)
+plot(gLscoremeans$gL,gLscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Genome Length (Morgans)",ylab="Score after 20 Generations",cex.axis=cex.axis,cex.lab=cex.lab,log="x")
 abline(v=5,lty=3)
 myline(gLscoremeans$gL,gLscoremeans$NonQ,gLscoremins$NonQ,gLscoremaxs$NonQ,col="#FF0000")
 myline(gLscoremeans$gL,gLscoremeans$Het,gLscoremins$Het,gLscoremaxs$Het,col="#00FF00")
 myline(gLscoremeans$gL,gLscoremeans$Kin,gLscoremins$Kin,gLscoremaxs$Kin,col="#00FFFF")
-myline(gLscoremeans$gL,gLscoremeans$HetQ,gLscoremins$HetQ,gLscoremaxs$HetQ,col="#0000FF")
-myline(gLscoremeans$gL,gLscoremeans$KinQ,gLscoremins$KinQ,gLscoremaxs$KinQ,col="#FF00FF")
-mtext("b) Genome Length (Selecting SHQS)",adj=0,line=1,cex=0.8)
-plot(lambdascoremeans$lambda,lambdascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlim=c(2,6),xlab="Mean offspring per pair surviving to adulthood",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
+myline(gLscoremeans$gL,gLscoremeans$KinQ,gLscoremins$KinQ,gLscoremaxs$KinQ,col="#0000FF")
+myline(gLscoremeans$gL,gLscoremeans$HetQ,gLscoremins$HetQ,gLscoremaxs$HetQ,col="#FF00FF")
+mtext("b) Genome Length (Selecting WPH)",adj=0.6,line=1,cex=cex.mtext)
+plot(lambdascoremeans$lambda,lambdascoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlim=c(2,6),xlab="Mean breeding offspring per pair",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=cex.lab)
 abline(v=4.2,lty=3)
 myline(lambdascoremeans$lambda,lambdascoremeans$NonQ,lambdascoremins$NonQ,lambdascoremaxs$NonQ,col="#FF0000")
 myline(lambdascoremeans$lambda,lambdascoremeans$Het,lambdascoremins$Het,lambdascoremaxs$Het,col="#00FF00")
 myline(lambdascoremeans$lambda,lambdascoremeans$Kin,lambdascoremins$Kin,lambdascoremaxs$Kin,col="#00FFFF")
-myline(lambdascoremeans$lambda,lambdascoremeans$HetQ,lambdascoremins$HetQ,lambdascoremaxs$HetQ,col="#0000FF")
-myline(lambdascoremeans$lambda,lambdascoremeans$KinQ,lambdascoremins$KinQ,lambdascoremaxs$KinQ,col="#FF00FF")
-mtext("c) Mean Offspring (Selecting SHQS)",adj=0,line=1,cex=0.8)
+myline(lambdascoremeans$lambda,lambdascoremeans$KinQ,lambdascoremins$KinQ,lambdascoremaxs$KinQ,col="#0000FF")
+myline(lambdascoremeans$lambda,lambdascoremeans$HetQ,lambdascoremins$HetQ,lambdascoremaxs$HetQ,col="#FF00FF")
+mtext("c) Mean Offspring (Selecting WPH)",adj=0.6,line=1,cex=cex.mtext)
 ##
-plot(genscoremeans$gen,genscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Generations before breeding program",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2,log="x")
+plot(genscoremeans$gen,genscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Gens before breeding program",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=cex.lab,log="x")
 abline(v=10,lty=3)
 myline(genscoremeans$gen,genscoremeans$NonQ,genscoremins$NonQ,genscoremaxs$NonQ,col="#FF0000")
 myline(genscoremeans$gen,genscoremeans$Het,genscoremins$Het,genscoremaxs$Het,col="#00FF00")
 myline(genscoremeans$gen,genscoremeans$Kin,genscoremins$Kin,genscoremaxs$Kin,col="#00FFFF")
-myline(genscoremeans$gen,genscoremeans$HetQ,genscoremins$HetQ,genscoremaxs$HetQ,col="#0000FF")
-myline(genscoremeans$gen,genscoremeans$KinQ,genscoremins$KinQ,genscoremaxs$KinQ,col="#FF00FF")
-mtext("d) Gens before program (Selecting SHQS)",adj=0,line=1,cex=0.8)
+myline(genscoremeans$gen,genscoremeans$KinQ,genscoremins$KinQ,genscoremaxs$KinQ,col="#0000FF")
+myline(genscoremeans$gen,genscoremeans$HetQ,genscoremins$HetQ,genscoremaxs$HetQ,col="#FF00FF")
+mtext("d) Introgression Age (Selecting WPH)",adj=0.6,line=1,cex=cex.mtext)
 ##
-plot(alphaKscoremeans$NonQ0,alphaKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
+plot(alphaKscoremeans$NonQ0,alphaKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Founder introgression proportion",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=cex.lab)
 abline(v=0.2,lty=3)
 myline(alphaKscoremeans$NonQ0,alphaKscoremeans$NonQ,alphaKscoremins$NonQ,alphaKscoremaxs$NonQ,col="#FF0000")
 myline(alphaKscoremeans$NonQ0,alphaKscoremeans$Het,alphaKscoremins$Het,alphaKscoremaxs$Het,col="#00FF00")
 myline(alphaKscoremeans$NonQ0,alphaKscoremeans$Kin,alphaKscoremins$Kin,alphaKscoremaxs$Kin,col="#00FFFF")
-myline(alphaKscoremeans$NonQ0,alphaKscoremeans$HetQ,alphaKscoremins$HetQ,alphaKscoremaxs$HetQ,col="#0000FF")
-myline(alphaKscoremeans$NonQ0,alphaKscoremeans$KinQ,alphaKscoremins$KinQ,alphaKscoremaxs$KinQ,col="#FF00FF")
-mtext("e) Introgression (Selecting SKQ)",adj=0,line=1,cex=0.8)
+myline(alphaKscoremeans$NonQ0,alphaKscoremeans$KinQ,alphaKscoremins$KinQ,alphaKscoremaxs$KinQ,col="#0000FF")
+myline(alphaKscoremeans$NonQ0,alphaKscoremeans$HetQ,alphaKscoremins$HetQ,alphaKscoremaxs$HetQ,col="#FF00FF")
+mtext("e) Introgression (Selecting PK)",adj=0.6,line=1,cex=cex.mtext)
 ##
-plot(gLKscoremeans$gL,gLKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Genome Length (Morgans)",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
+legend("topleft",
+       legend=c(expression("Introgression"~S^Q),
+                expression("Heterozygosity"~S^H),
+                expression("Kinship"~S^K),
+                expression("Pop. Kinship"~S^{PK}),
+                expression("Pop. Heterozygosity"~S^{PH})),
+       text.col=c(2,3,5,4,6),lty=1,
+       col=c(2,3,5,4,6),title="Score:",title.col=1,cex=1.2,lwd=2,bg="white")
+##
+##
+plot(gLKscoremeans$gL,gLKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Genome Length (Morgans)",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=cex.lab,log="x")
 abline(v=5,lty=3)
 myline(gLKscoremeans$gL,gLKscoremeans$NonQ,gLKscoremins$NonQ,gLKscoremaxs$NonQ,col="#FF0000")
 myline(gLKscoremeans$gL,gLKscoremeans$Het,gLKscoremins$Het,gLKscoremaxs$Het,col="#00FF00")
 myline(gLKscoremeans$gL,gLKscoremeans$Kin,gLKscoremins$Kin,gLKscoremaxs$Kin,col="#00FFFF")
-myline(gLKscoremeans$gL,gLKscoremeans$HetQ,gLKscoremins$HetQ,gLKscoremaxs$HetQ,col="#0000FF")
-myline(gLKscoremeans$gL,gLKscoremeans$KinQ,gLKscoremins$KinQ,gLKscoremaxs$KinQ,col="#FF00FF")
-mtext("f) Genome Length (Selecting SKQ)",adj=0,line=1,cex=0.8)
-plot(lambdaKscoremeans$lambda,lambdaKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlim=c(2,6),xlab="Mean offspring per pair surviving to adulthood",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2)
+myline(gLKscoremeans$gL,gLKscoremeans$KinQ,gLKscoremins$KinQ,gLKscoremaxs$KinQ,col="#0000FF")
+myline(gLKscoremeans$gL,gLKscoremeans$HetQ,gLKscoremins$HetQ,gLKscoremaxs$HetQ,col="#FF00FF")
+mtext("f) Genome Length (Selecting PK)",adj=0.6,line=1,cex=cex.mtext)
+plot(lambdaKscoremeans$lambda,lambdaKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlim=c(2,6),xlab="Mean breeding offspring per pair",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=cex.lab)
 abline(v=4.2,lty=3)
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$NonQ,lambdaKscoremins$NonQ,lambdaKscoremaxs$NonQ,col="#FF0000")
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$Het,lambdaKscoremins$Het,lambdaKscoremaxs$Het,col="#00FF00")
 myline(lambdaKscoremeans$lambda,lambdaKscoremeans$Kin,lambdaKscoremins$Kin,lambdaKscoremaxs$Kin,col="#00FFFF")
-myline(lambdaKscoremeans$lambda,lambdaKscoremeans$HetQ,lambdaKscoremins$HetQ,lambdaKscoremaxs$HetQ,col="#0000FF")
-myline(lambdaKscoremeans$lambda,lambdaKscoremeans$KinQ,lambdaKscoremins$KinQ,lambdaKscoremaxs$KinQ,col="#FF00FF")
-mtext("g) Mean Offspring per pair (Selecting SKQ)",adj=0,line=1,cex=0.8)
+myline(lambdaKscoremeans$lambda,lambdaKscoremeans$KinQ,lambdaKscoremins$KinQ,lambdaKscoremaxs$KinQ,col="#0000FF")
+myline(lambdaKscoremeans$lambda,lambdaKscoremeans$HetQ,lambdaKscoremins$HetQ,lambdaKscoremaxs$HetQ,col="#FF00FF")
+mtext("g) Mean Offspring (Selecting PK)",adj=0.6,line=1,cex=cex.mtext)
 ##
-plot(genKscoremeans$gen,genKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Generations before breeding program",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=1.2,log="x")
+plot(genKscoremeans$gen,genKscoremeans$NonQ,type="n",col=2,ylim=c(0,0.5),xlab="Gens before breeding program",ylab="Score after 20 Generations",cex.axis=1.5,cex.lab=cex.lab,log="x")
 abline(v=10,lty=3)
 myline(genKscoremeans$gen,genKscoremeans$NonQ,genKscoremins$NonQ,genKscoremaxs$NonQ,col="#FF0000")
 myline(genKscoremeans$gen,genKscoremeans$Het,genKscoremins$Het,genKscoremaxs$Het,col="#00FF00")
 myline(genKscoremeans$gen,genKscoremeans$Kin,genKscoremins$Kin,genKscoremaxs$Kin,col="#00FFFF")
-myline(genKscoremeans$gen,genKscoremeans$HetQ,genKscoremins$HetQ,genKscoremaxs$HetQ,col="#0000FF")
-myline(genKscoremeans$gen,genKscoremeans$KinQ,genKscoremins$KinQ,genKscoremaxs$KinQ,col="#FF00FF")
-mtext("h) Gens before program (Selecting SKQ)",adj=0,line=1,cex=0.8)
+myline(genKscoremeans$gen,genKscoremeans$KinQ,genKscoremins$KinQ,genKscoremaxs$KinQ,col="#0000FF")
+myline(genKscoremeans$gen,genKscoremeans$HetQ,genKscoremins$HetQ,genKscoremaxs$HetQ,col="#FF00FF")
+mtext("h) Introgression Age (Selecting PK)",adj=0.6,line=1,cex=cex.mtext)
 dev.off()
