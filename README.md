@@ -1,5 +1,8 @@
 # localsancestrybreeding
-Pilot model for breeding using local ancestry 
+
+A pilot model for modelling breeding using local ancestry, as described in Lawson, Howard-McCombe, Beaumont and Senn 2023 "To unscramble an egg: admixed captive breeding populations can be rescued using local ancestry information" (under submission).
+
+All functions required for the simulation are in [localancestryfns.R](localancestryfns.R).
 
 Procedure:
 
