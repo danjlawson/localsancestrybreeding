@@ -60,9 +60,5 @@ write.csv(mygtdata,file="../chr16data/gtdata.csv")
 write.csv(mylocalancestry,file="../chr16data/localancestry.csv")
 write.csv(samples[mysamples,],file="../chr16data/samples.csv")
 
-pdf("FigureS1-WildcatAncestryCallProb.pdf",height=5,width=5)
-hist(localanc[[16]][2,,],breaks=seq(0,1,length.out=101),xlab="Probability of Wildcat ancestry",ylab="Observed SNP count",main="")
-dev.off()
-
 
 

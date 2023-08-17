@@ -5,20 +5,19 @@
 
 ## Simulation functions: See https://doi.org/10.1101/2023.07.27.550812
 ## 
-source("localancestryfns.R")
+source("../localancestryfns.R")
 ### Start of real data processing
 
 ## Obtaining the empirical results from mosaic. External users will not have these so we save the histograms, which is all you need for the analysis presented.
 hide <-function(){
-    tmp=load("convertmosaic/localanc_scot_2way_1-36_1-19_130_60_0.99_58.RData")
+    tmp=load("../convertmosaic/localanc_scot_2way_1-36_1-19_130_60_0.99_58.RData")
     ## [1] "localanc"    "final.flips" "g.loc"     
-    tmp2=load("convertmosaic/scot_2way_1-36_1-19_130_60_0.99_58.RData") 
+    tmp2=load("../convertmosaic/scot_2way_1-36_1-19_130_60_0.99_58.RData") 
     ## [1] "target"  "logfile" "Mu"      "lambda"  "theta"   "alpha"   "PI"     
     ## [8] "rho"     "A"       "NUMA"    "nchrno"  "chrnos"  "dr"      "NL"     
     ##[15] "kLL"     "acoancs" "all_Fst" "GpcM"   
     alphamosaic=sapply(alpha,function(x)x[2]) # alpha, according to mosaic (domestic,wildcat) pairs
     alpha=mean(alphamosaic) # [1] 0.579633
-
     ## Processing the empirical results into histogram bins
     localancestrychr5=localanc[[5]][1,,]
     catsmeanlist=lapply(localanc,function(x)apply(x[1,,],2,mean))
@@ -30,7 +29,7 @@ hide <-function(){
 ## Obtain the data above
 alpha=0.579633
 catsmean=read.table("wildcat_catsmean_exclchr5.txt")[,1]
-catsmean=read.table("wildcat_chr5mean.txt")[,1]
+meanchr5=read.table("wildcat_chr5mean.txt")[,1]
 ## Compute histograms
 thcats=hist((1-catsmean)*72,breaks=seq(-0.5,72.5,by=1),plot=FALSE)
 th5=hist((1-meanchr5)*72,breaks=seq(-0.5,72.5,by=1),plot=FALSE)
@@ -44,9 +43,9 @@ maskrangecats=quantile(1-catsmean,c(0.025,0.975))*72
 
 ## Simulation parameters
 ## These are chosen as the best-fit parameters from the scan below
-N=600 # Individuals
+N=400 # Individuals
 G=20 # Number of gens after introgression starts
-L=1200 # Amount of genome, in SNPs. We assume cM for a basic sim. Doesn't affect the details of the fit, just increases the amount of averaging.
+L=300 # Amount of genome, in SNPs. We assume 1 SNP/cM = 100 SNP/ Morgan for a basic sim. Doesn't affect the details of the fit, just increases the amount of averaging.
 # 1-q/2 = alpha, q=2-2 alpha
 infracseq=c(rep(2-2*alpha,1),rep(0,G-1)) # Introgression sequence
 # Irrelevant parameters
@@ -85,7 +84,7 @@ thsimcatsemd=thsimcatsemd[order(thsimcatsemd)]
 ########
 ## Run a range of simulations with different N and G
 set.seed(2)
-nreps=10
+nreps=100
 Nseq=c(400,600,800,1000,1200)
 Gseq=c(5,10,15,20)
 thsimlistind=list()
