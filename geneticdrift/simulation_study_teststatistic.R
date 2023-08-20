@@ -145,7 +145,7 @@ layout(matrix(1:length(thsimlist),nrow=length(Nseq),ncol=length(Tseq),byrow=T))
 for(i in 1:length(thsimlist)){
     plot(thsimlist[[i]]$mids,thsimlist[[i]]$density,ylim=c(0,0.08),col="#0000FF55",
          main="",xlab="",ylab="",type="h",log="",lwd=2,cex.axis=1.5)
-    mtext("Number of Wildcat SNPs",side=1,line=2,cex=1)
+    mtext("Count of Wildcat alleles",side=1,line=2,cex=1)
     mtext("Density",side=2,cex=1,line=2)
 #    mtext(paste0(letters[i],") ",thsimlist[[i]]$name," RMSE = ",rmsetext[i]),cex=0.75)
 #    mtext(paste0(letters[i],") ",thsimlist[[i]]$name," |Err| = ",absetext[i]),cex=0.75)
@@ -175,7 +175,7 @@ layout(matrix(1:length(thsimlist),nrow=length(Tseq),ncol=length(Nseq)))
 for(i in 1:length(thsimlist)){
     plot(thsimcatslist[[i]]$mids,thsimcatslist[[i]]$density,ylim=c(0,0.08),col="#0000FF55",
          main="",xlab="",ylab="",type="h",log="",lwd=3)
-    mtext("Number of Wildcat SNPs",side=1,line=2,cex=0.75)
+    mtext("Count of Wildcat alleles",side=1,line=2,cex=0.75)
     mtext("Density",side=2,cex=0.75,line=2)
 #    mtext(paste0(letters[i],") ",thsimlist[[i]]$name," RMSE = ",rmsetext[i]),cex=0.75)
 #    mtext(paste0(letters[i],") ",thsimlist[[i]]$name," |Err| = ",absetext[i]),cex=0.75)
