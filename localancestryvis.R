@@ -124,6 +124,57 @@ ppK=myimage2(visdataPairwiseMK$data,inds=inds,snps=snps)
 ppHQ=myimage2(visdataPairwiseMHQScore$data,inds=inds,snps=snps)
 dev.off()
 
+################
+## Visualising the ranking function
+visscore=pairwiseKinshipQ(visdata)
+visparents=rankedParents(visdata,pairwiseKinshipQ)
+
+scoremat=visscore
+diag(scoremat)=0
+score=rowMeans(scoremat)
+N=100
+presentlist=1:N
+scorelist=numeric()
+parentlist<-numeric()
+for(i in 1:N){ ## Remove the worst candidate one by one, computing the mean of the scorematrix for the remaining
+    scoreorder=order(score,decreasing=TRUE)
+    who=presentlist[scoreorder[1]]
+    scorelist=c(scorelist,score[scoreorder[1]])
+    parentlist<-c(parentlist,who)
+    scoremat=scoremat[-scoreorder[1],-scoreorder[1],drop=FALSE]
+    score=rowMeans(scoremat)
+    presentlist=presentlist[-scoreorder[1]]
+}
+nchildren<-rpois(N,4.2)
+parents=data.frame(p1=numeric(),numeric())
+i=1
+scorelist=rev(scorelist)
+parentlist=rev(parentlist)
+while(dim(parents)[1]<N){
+    parents<-rbind(parents,
+                   data.frame(p1=rep(parentlist[2*i-1],nchildren[i]),
+                              p2=rep(parentlist[2*i],nchildren[i])))
+    i=i+1
+}
+parents=parents[1:N,]
+col=(1:N %in% unlist(parents))+1
+col=col[parentlist]
+
+tmp=visscore
+diag(tmp)=NA
+hm=heatmap(tmp,symm=TRUE,scale="none",keep.dendro=T)
+to=parentlist # labels(hm$Colv)
+tvisparents=cbind(sapply(visparents[,1],function(x)which(to==x)),
+                  sapply(visparents[,2],function(x)which(to==x)))
+image(log(tmp[to,to]),x=seq(1,100),y=seq(1,100))
+points(c(tvisparents[,1],tvisparents[,2]),c(tvisparents[,2],tvisparents[,1]))
+diag(tmp)=0
+
+
+plot(scorelist,col=col,pch="-",cex=2)
+
+plot()
+
 load("sim.RData")
 scores=c("NonQ","KinQ")
 names=c("Introgressed Admixture","Subpop Kinship")

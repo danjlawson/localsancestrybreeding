@@ -166,6 +166,7 @@ rankedParents<-function(data,selfn=pairwiseRandom,min=TRUE,usesex=FALSE,errprob=
     ## selfn MUST be a pairwise quantity
     N=dim(data[[1]])[1]/2
     scoremat=selfn(data,...) ## MOVE INTO parentfn :(
+    diag(scoremat)=0
     if(!usesex){
         ## Implement their algorithm without the constraint of sex
         presentlist=1:N

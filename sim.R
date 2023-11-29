@@ -323,3 +323,8 @@ legend("center",legend=c(expression("Random"),
        col     =c(1,2,3,4,4,6),
        title="Breeding top 50% using:",cex=1.2,lwd=2)
 dev.off()
+
+
+tmp=pairwiseKinshipQScore(data)
+diag(tmp)=NA
+heatmap(tmp,symm=TRUE,scale="none")
