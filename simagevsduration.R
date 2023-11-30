@@ -22,7 +22,7 @@ gendatalist<-lapply(1:dim(genall)[1],function(i){
 })
 
 ## Simulate breeding program
-gen2MHQScore=lapply(1:length(gentest),function(i){
+gen2MHQScore=lapply(1:dim(genall)[1],function(i){
     print(i)
     Gforward=genall[i,2]
     dataPairwiseMHQScore<-breedingSel(gendatalist[[i]],Gforward,
@@ -30,7 +30,7 @@ gen2MHQScore=lapply(1:length(gentest),function(i){
                                       min=FALSE)
     dataPairwiseMHQScore
 })
-gen2MKQ=lapply(1:length(gentest),function(i){
+gen2MKQ=lapply(1:dim(genall)[1],function(i){
     print(i)
     Gforward=genall[i,2]
     dataPairwiseMHQScore<-breedingSel(gendatalist[[i]],Gforward,
